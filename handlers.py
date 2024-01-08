@@ -7,8 +7,8 @@ city = ''   # Город, по которому будет отсылаться 
 # Обработчик на команду /start
 @utils.BOT.message_handler(commands=['start'])
 def start(message):
-    utils.writeUserAction(message.from_user.full_name, message.chat.username, message.from_user.id, "Clicked /start")
-    utils.removeMessage(chatID=message.from_user.id, messageID=message.message_id)  # Удаляем сообщение пользователя
+    utils.write_user_action(message.from_user.full_name, message.chat.username, message.from_user.id, "Clicked /start")
+    utils.remove_message(chat_id=message.from_user.id, message_id=message.message_id)  # Удаляем сообщение пользователя
     global city, lastMessageBot
     lastMessageBot = utils.BOT.send_message(message.chat.id, ('Привет, {0.first_name}! 😃\n'
                                                               'Я умею прогнозировать погоду.\n'
@@ -21,26 +21,26 @@ def start(message):
 # (func=lambda message: True) для edit_message_text
 @utils.BOT.message_handler(func=lambda message: True, content_types=['text'])
 def bot_message(message):
-    utils.removeMessage(chatID=message.from_user.id, messageID=message.message_id)   # Удаляем сообщение пользователя
+    utils.remove_message(chat_id=message.from_user.id, message_id=message.message_id)   # Удаляем сообщение пользователя
     global city, lastMessageBot
 
-    if utils.checkKey(message):  # Проверка по ключу на получение журнала действий пользователей
+    if utils.check_key(message):  # Проверка по ключу на получение журнала действий пользователей
         quit()
 
     if message.chat.type == 'private':    # Если это личное сообщение
 
         if message.text == 'Текущий прогноз' and city != '':
-            utils.writeUserAction(message.from_user.full_name, message.chat.username, message.from_user.id,
+            utils.write_user_action(message.from_user.full_name, message.chat.username, message.from_user.id,
                                   'Clicked on the current forecast')
-            weatherText = utils.currentForecast(city)
+            weather_text = utils.current_forecast(city)
 
             try:
-                utils.removeMessage(message.chat.id, lastMessageBot.id)   # Удаляем сообщение бота
+                utils.remove_message(message.chat.id, lastMessageBot.id)   # Удаляем сообщение бота
             except:
                 pass
 
-            lastMessageBot = utils.BOT.send_message(message.from_user.id, text=weatherText,
-                                                    reply_markup=utils.createMarkup())
+            lastMessageBot = utils.BOT.send_message(message.from_user.id, text=weather_text,
+                                                    reply_markup=utils.create_markup())
 
             """ # Пока не работает
             BOT.edit_message_text(chat_id=message.chat.id, message_id=lastMessageBot.id,
@@ -48,43 +48,43 @@ def bot_message(message):
             """
 
         elif message.text == 'Прогноз на 4 дня' and city != '':
-            utils.writeUserAction(message.from_user.full_name, message.chat.username, message.from_user.id,
+            utils.write_user_action(message.from_user.full_name, message.chat.username, message.from_user.id,
                                   'Clicked on the four-day forecast')
-            weatherText = utils.forecastForFourDays(city)
+            weather_text = utils.forecast_for_four_days(city)
 
             try:
-                utils.removeMessage(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
+                utils.remove_message(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
             except:
                 pass
 
-            lastMessageBot = utils.BOT.send_message(message.from_user.id, text=weatherText,
-                                                    reply_markup=utils.createMarkup())
+            lastMessageBot = utils.BOT.send_message(message.from_user.id, text=weather_text,
+                                                    reply_markup=utils.create_markup())
 
         elif message.text == 'Выбрать другой город' and city != '':
-            utils.writeUserAction(message.from_user.full_name, message.chat.username, message.from_user.id,
+            utils.write_user_action(message.from_user.full_name, message.chat.username, message.from_user.id,
                                   'Clicked to select another city')
 
             try:
-                utils.removeMessage(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
+                utils.remove_message(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
             except:
                 pass
 
             lastMessageBot = utils.BOT.send_message(message.chat.id, 'Напиши город 🏙\nИли отправь свою геопозицию 🌍')
 
         else:  # Если пользователь не ввёл текст кнопок (ввёл предположительно город)
-            userText = message.json['text'].capitalize()
-            utils.writeUserAction(message.from_user.full_name, message.chat.username, message.from_user.id,
+            user_text = message.json['text'].capitalize()
+            utils.write_user_action(message.from_user.full_name, message.chat.username, message.from_user.id,
                                   'Sent a text "{0}"'.format(message.text))
 
             try:
-                utils.removeMessage(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
+                utils.remove_message(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
             except:
                 pass
 
-            if utils.cityCheck(userText):    # Если пользователь ввёл корректное название города
-                city = userText
+            if utils.city_check(user_text):    # Если пользователь ввёл корректное название города
+                city = user_text
                 lastMessageBot = utils.BOT.send_message(message.chat.id, 'Вы выбрали город {0}'.format(city),
-                                                        reply_markup=utils.createMarkup())
+                                                        reply_markup=utils.create_markup())
             else:
                 lastMessageBot = utils.BOT.send_message(message.chat.id, 'Я не знаю городов с таким названием 😒\n'
                                                                          'Напиши другой город или '
@@ -94,25 +94,25 @@ def bot_message(message):
 # Обработчик на геопозицию
 @utils.BOT.message_handler(content_types=["location"])
 def location(message):
-    utils.writeUserAction(message.from_user.full_name, message.chat.username, message.from_user.id, "Sent geolocation")
+    utils.write_user_action(message.from_user.full_name, message.chat.username, message.from_user.id, "Sent geolocation")
 
     global city, lastMessageBot
-    city = utils.cityDefinition(message)
+    city = utils.city_definition(message)
 
     try:
-        utils.removeMessage(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
+        utils.remove_message(message.chat.id, lastMessageBot.id)  # Удаляем сообщение бота
     except:
         pass
 
     if city:    # Если город выбран
         lastMessageBot = utils.BOT.send_message(message.chat.id, 'Вы выбрали город {0}'.format(city),
-                                                reply_markup=utils.createMarkup())
+                                                reply_markup=utils.create_markup())
     else:
         lastMessageBot = utils.BOT.send_message(message.chat.id, 'Я не смог определить город по вашей метке 😒\n'
                                                                  'Напиши другой город или '
                                                                  'отправь другую геопозицию!')
 
-    utils.removeMessage(chatID=message.from_user.id, messageID=message.message_id)  # Удаляем сообщение пользователя
+    utils.remove_message(chat_id=message.from_user.id, message_id=message.message_id)  # Удаляем сообщение пользователя
 
 
 utils.BOT.polling(none_stop=True)
